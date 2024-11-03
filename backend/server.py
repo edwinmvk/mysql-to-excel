@@ -9,8 +9,6 @@ import time
 app = Flask(__name__)
 CORS(app, expose_headers=["Content-Disposition"])
 
-# Keep track of temporary files
-temp_files = set()
 
 @app.route('/convert', methods=['POST'])
 def convert_sql_to_excel():
@@ -34,7 +32,6 @@ def convert_sql_to_excel():
         # Create temporary SQL file
         temp_sql_file = tempfile.NamedTemporaryFile(delete=False, suffix='.sql')
         temp_sql_path = temp_sql_file.name
-        temp_files.add(temp_sql_path)
         
         # Save and explicitly close the file
         file.save(temp_sql_path)
@@ -46,8 +43,6 @@ def convert_sql_to_excel():
             
             # Generate Excel file
             excel_file_path = export_to_excel(host, username, password, database)
-            if excel_file_path:
-                temp_files.add(excel_file_path)
             
             # Register cleanup function to run after response
             @after_this_request
